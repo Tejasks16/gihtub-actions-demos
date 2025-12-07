@@ -1,0 +1,69 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci && npm run build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-build
+          path: dist/
+
+  deploy-staging:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: app-build
+      
+      - name: Deploy to staging
+        run: |
+          echo "Deploying to staging..."
+          # Your deployment script
+          ./scripts/deploy.sh staging
+        env:
+          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          ENVIRONMENT: staging
+
+  deploy-production:
+    needs: [build, deploy-staging]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.com
+    
+    # This job pauses and waits for manual approval
+    # via GitHub UI before proceeding
+    
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          name: app-build
+      
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          ./scripts/deploy.sh production
+        env:
+          DEPLOY_KEY: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
+          ENVIRONMENT: production
+      
+      - name: Notify deployment
+        if: success()
+        run: |
+          curl -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer ${{ secrets.SLACK_TOKEN }}" \
+            -d '{"channel":"#deployments","text":"✅ Production deployment successful!"}'
