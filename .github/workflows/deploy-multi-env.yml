@@ -1,0 +1,55 @@
+name: Multi-Environment Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.local
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build application
+        run: |
+          echo "Building application..."
+          mkdir -p dist
+          echo "Hello from build" > dist/index.html
+      
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment"
+          echo "Build ID: ${{ github.run_id }}"
+          echo "Deployed by: ${{ github.triggering_actor }}"
+
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://example.local
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build application
+        run: |
+          echo "Building application..."
+          mkdir -p dist
+          echo "Hello from build" > dist/index.html
+      
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying to production environment"
+          echo "Build ID: ${{ github.run_id }}"
+          echo "Approved by: ${{ github.triggering_actor }}"
+      
+      - name: Create deployment tag
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag -a v-${{ github.run_number }} -m "Production deployment ${{ github.run_number }}"
