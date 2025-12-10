@@ -40,4 +40,5 @@ jobs:
       - name: Read file from previous job
         run: |
           echo "Contents of message.txt:"
+          cat /home/runner/work/gihtub-actions-demos/gihtub-actions-demos/message.txt
           
