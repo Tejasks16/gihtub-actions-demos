@@ -34,9 +34,10 @@ jobs:
       - name: List files after download
         run: |
           echo "After download, files are:"
-          ls -R .
+          pwd
+          ls -ltr .
 
       - name: Read file from previous job
         run: |
           echo "Contents of message.txt:"
-          cat build/message.txt     # this now exists
+          
