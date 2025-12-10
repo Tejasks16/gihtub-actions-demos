@@ -1,0 +1,42 @@
+name: paraller-jobs
+on: workflow_dispatch
+jobs:
+  hello:
+    name: Say Hello
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print hello message
+        run: echo "Hello from GitHub Actions! 👋"
+      
+      - name: Print system info
+        run: |
+          echo "OS: $(uname -s)"
+          echo "Architecture: $(uname -m)"
+          echo "Current time: $(date)"
+      
+      - name: List files
+        run: ls -la
+  random-math:
+    name: Calculate Random Numbers
+    runs-on: ubuntu-latest  
+    steps:
+      - name: Generate random numbers
+        run: |
+          echo "🧮 Calculating random numbers..."
+          echo "Random number 1: $((RANDOM % 100))"
+          echo "Random number 2: $((RANDOM % 100))"
+          echo "Random number 3: $((RANDOM % 100))"
+          echo "Sum: $((RANDOM + RANDOM + RANDOM))"
+      
+      - name: Math operations
+        run: |
+          echo "π ≈ 3.14159"
+          echo "e ≈ 2.71828"
+          echo "√2 ≈ $(echo 'scale=5; sqrt(2)' | bc)"
+          echo "Fibonacci sequence: 0, 1, 1, 2, 3, 5, 8, 13"
+      
+      - name: System load check
+        run: |
+          echo "CPU count: $(nproc)"
+          echo "Memory: $(free -h | head -n2)"
+          echo "Disk space: $(df -h / | tail -1)"
